@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Web Page</title>
+    <link rel="stylesheet" href="styles.css">
+    </head>
+
+<body>
+    <h1>hi</h1>
+    <form action="/api" method="POST">
+        <label for="who">Who:</label>
+        <input name="who" id="who"/>
+        <label for="x">x</label>
+        <input name="x" id="x"/>
+        <label for="y">y</label>
+        <input name="y" id="y"/>
+        <input type="submit"/>
+    
+    </form>
+    <label for="oldDancerName">Old name</label>
+    <input name="oldDancerName" id="oldDancerName"/>
+    <label for="newDancerName">New name</label>
+    <input name="newDancerName" id="newDancerName"/>
+    <button id="updateDancer">Update</button>
+
+    <button id="deleteAll">Deleate all dancers</button>
+    
+    <script>
+        async function deleteAllDancers(){
+            await fetch("/api", {
+                method: "DELETE"
+            })
+            window.location.href = "/api"
+        }
+
+        document.getElementById("deleteAll").addEventListener("click", deleteAllDancers);
+        
+        async function updateDancerName()
+        {
+            const oldDancerName = document.getElementById("oldDancerName").value
+            const newDancerName = document.getElementById("newDancerName").value
+6
+            if (!oldDancerName || !newDancerName)
+            {
+                alert("Enter the names!")
+                return
+            }
+
+            await fetch("/api", {
+                method: "PUT",
+                body: `oldName=${encodeURIComponent(oldDancerName)}&newName=${encodeURIComponent(newDancerName)}`
+
+            }
+            )
+            window.location.href = "/api"
+            
+        }
+        document.getElementById("updateDancer").addEventListener("click", updateDancerName)
+    
+    </script>
+    <script src="js.js"></script>
+    </body>
+</html>
