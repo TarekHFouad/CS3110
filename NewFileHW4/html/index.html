@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Web Page</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <h1>hi</h1>
+    <form action="/api" method="POST">
+        <label for="who">Who:</label>
+        <input name="who" id="who"/>
+        <label for="x">x</label>
+        <input name="x" id="x"/>
+        <label for="y">y</label>
+        <input name="y" id="y"/>
+        <input type="submit"/>
+    </form>
+
+
+    <label for="oldDancerName">Old name</label>
+    <input name="oldDancerName" id="oldDancerName"/>
+    <label for="newDancerName">New name</label>
+    <input name="newDancerName" id="newDancerName"/>
+    <button id="updateDancer">Update</button>
+
+    <label for="searchDancer">Search for Dancer:</label>
+    <input type="text" id="searchDancer" />
+    <button id="searchButton">Search</button>
+    <div id="searchResult"></div>
+
+    <button id="deleteAll">Delete all dancers</button>
+
+    <button id="displayDancers">Display Dancers</button>
+    <div id="dancerList"></div>
+
+    <script>
+        // Script to Display the lists on the main page
+        async function displayDancers() {
+            const response = await fetch("/api", { method: "GET" });
+            const dancers = await response.json();
+    
+            const dancerListDiv = document.getElementById("dancerList");
+            dancerListDiv.innerHTML = ""; 
+    
+            if (dancers.length === 0) {
+                dancerListDiv.innerHTML = "<p>No dancers found.</p>";
+                return;
+            }
+    
+            const ul = document.createElement("ul");
+            dancers.forEach(dancer => {
+                const li = document.createElement("li");
+                li.textContent = `Name: ${dancer.who}, x: ${dancer.x}, y: ${dancer.y}`;
+                ul.appendChild(li);
+            });
+            dancerListDiv.appendChild(ul);
+        }
+    
+        document.getElementById("displayDancers").addEventListener("click", displayDancers);
+    // END OF DISPLAY DATA
+        // SEARCH FOR SPECIFIC DANCER
+        async function searchDancer() {
+            const searchName = document.getElementById("searchDancer").value.trim();
+            if (!searchName) {
+                alert("Please enter a dancer's name to search.");
+                return;
+            }
+    
+            const response = await fetch("/api", { method: "GET" });
+            const dancers = await response.json();
+    
+            const dancer = dancers.find(d => d.who === searchName);
+            const searchResultDiv = document.getElementById("searchResult");
+            searchResultDiv.innerHTML = ""; // Clear previous result
+    
+            if (dancer) {
+                searchResultDiv.innerHTML = `<p>Found: Name: ${dancer.who}, x: ${dancer.x}, y: ${dancer.y}</p>`;
+            } else {
+                searchResultDiv.innerHTML = "<p>Dancer not found.</p>";
+            }
+        }
+    
+        document.getElementById("searchButton").addEventListener("click", searchDancer);
+
+        
+        async function deleteAllDancers() {
+            await fetch("/api", { method: "DELETE" });
+            window.location.href = "/api";
+        }
+
+        async function updateDancerName() {
+            const oldDancerName = document.getElementById("oldDancerName").value;
+            const newDancerName = document.getElementById("newDancerName").value;
+
+            if (!oldDancerName || !newDancerName) {
+                alert("Enter the names!");
+                return;
+            }
+
+            await fetch("/api", {
+                method: "PUT",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `oldName=${encodeURIComponent(oldDancerName)}&newName=${encodeURIComponent(newDancerName)}`
+            });
+
+            window.location.href = "/api";
+        }
+
+        document.getElementById("deleteAll").addEventListener("click", deleteAllDancers);
+        document.getElementById("updateDancer").addEventListener("click", updateDancerName);
+    </script>
+</body>
+</html>
